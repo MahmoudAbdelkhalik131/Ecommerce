@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import subcategoriesSchema from "./subcategories.schema";
 import AsyncHandler from "express-async-handler";
 import Subcategories from "./subcategories.interface";
+import refactorServices from "../refactorServices";
 class SubcategoriesServices {
   setCategoryId(req: Request, res: Response, next: NextFunction) {
     if (req.params.categoryId && !req.body.Categories)
@@ -14,44 +15,11 @@ class SubcategoriesServices {
     req.filterData=filterDate
     next();
   }
-  getAll = AsyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-      let filterData:any={}
-      if(req.filterData) filterData=req.filterData
-      const sub: Subcategories[] = await subcategoriesSchema.find(filterData);
-      res.status(200).json({ data: sub });
-    }
-  );
-  getOne = AsyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const sub: Subcategories | null = await subcategoriesSchema.findById(
-        req.params.id
-      );
-      res.status(200).json({ data: sub });
-    }
-  );
-  create = AsyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const sub: Subcategories = await subcategoriesSchema.create(req.body);
-      res.status(201).json({ data: sub });
-    }
-  );
-  updata = AsyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const sub: Subcategories | null =
-        await subcategoriesSchema.findByIdAndUpdate(req.params.id, req.body, {
-          new: true,
-        });
-      res.status(200).json({ data: sub });
-    }
-  );
-  delete = AsyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const sub: Subcategories | null =
-        await subcategoriesSchema.findByIdAndDelete();
-      res.status(204).json({});
-    }
-  );
+  getAll =refactorServices.getAll<Subcategories>(subcategoriesSchema)
+  getOne =refactorServices.getById<Subcategories>(subcategoriesSchema)
+  create =refactorServices.create<Subcategories>(subcategoriesSchema)
+  updata = refactorServices.update<Subcategories>(subcategoriesSchema)
+  delete =refactorServices.delete<Subcategories>(subcategoriesSchema)
 }
 const subcategoriesservices = new SubcategoriesServices();
 
